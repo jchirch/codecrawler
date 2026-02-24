@@ -1,0 +1,73 @@
+.new-campaign-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+.form-card {
+  background: #1a1f2e;
+  border: 1px solid #2d3a5e;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+
+.card-header { margin-bottom: 1.5rem; }
+h2 { margin: 0 0 .3rem; color: #e2e8f0; font-size: 1.5rem; }
+.subtitle { margin: 0; color: #718096; font-size: .9rem; }
+
+.error-banner {
+  background: rgba(252,129,129,.1);
+  border: 1px solid rgba(252,129,129,.4);
+  color: #fc8181;
+  border-radius: 6px;
+  padding: .6rem .8rem;
+  font-size: .875rem;
+  margin-bottom: 1rem;
+}
+
+.field { display: flex; flex-direction: column; margin-bottom: 1.2rem; }
+.field label { font-size: .875rem; font-weight: 600; margin-bottom: .4rem; color: #a0aec0; }
+
+.field input,
+.field select {
+  background: #0f1117;
+  border: 1px solid #2d3a5e;
+  border-radius: 6px;
+  padding: .65rem .8rem;
+  font-size: 1rem;
+  color: #e2e8f0;
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field input:focus,
+.field select:focus { border-color: #7c3aed; }
+.field input::placeholder { color: #4a5568; }
+
+.field-error { font-size: .8rem; color: #fc8181; margin-top: .3rem; }
+
+button {
+  width: 100%;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: .75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  margin-top: .5rem;
+}
+button:hover:not(:disabled) { background: #6d28d9; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+
+.back-link { text-align: center; margin-top: 1rem; font-size: .9rem; }
+.back-link a { color: #a78bfa; text-decoration: none; }
+.back-link a:hover { text-decoration: underline; }
+

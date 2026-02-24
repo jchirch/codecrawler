@@ -20,9 +20,9 @@
 .brand {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  letter-spacing: .08em;
   text-decoration: none;
-  background: linear-gradient(135deg, #667eea, #a855f7);
+  background: linear-gradient(135deg, #7c3aed, #d69e2e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -53,11 +53,11 @@
   transition: background .15s;
 }
 .nav-btn.register {
-  background: #667eea;
+  background: #7c3aed;
   color: #fff;
   text-decoration: none;
 }
-.nav-btn.register:hover { background: #5a67d8; }
+.nav-btn.register:hover { background: #6d28d9; }
 .nav-btn.logout { background: #e53e3e; color: #fff; }
 .nav-btn.logout:hover { background: #c53030; }
 
@@ -65,6 +65,6 @@
 .content {
   flex: 1;
   padding: 2rem;
-  background: #f7fafc;
+  background: transparent;
 }
 

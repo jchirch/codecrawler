@@ -4,6 +4,7 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import { createHealthRouter } from './routes/health';
 import { createAuthRouter } from './routes/auth';
+import { createCampaignsRouter } from './routes/campaigns';
 import { runMigrations } from './db/migrate';
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(express.json());
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/health', createHealthRouter(db));
 app.use('/api/auth', createAuthRouter(db));
+app.use('/api/campaigns', createCampaignsRouter(db));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 runMigrations(db)

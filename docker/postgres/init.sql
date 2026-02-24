@@ -9,3 +9,12 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS campaigns (
+  id          SERIAL PRIMARY KEY,
+  name        TEXT NOT NULL,
+  theme       TEXT NOT NULL,
+  difficulty  TEXT NOT NULL,
+  owner_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+

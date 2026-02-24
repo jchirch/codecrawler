@@ -1,9 +1,10 @@
 <div class="shell">
   <nav class="navbar">
-    <a class="brand" routerLink="/">AI Lab</a>
+    <a class="brand" routerLink="/">CODECRAWLER</a>
     <div class="nav-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
       @if (auth.isAuthenticated()) {
+        <a routerLink="/campaigns" routerLinkActive="active">Campaigns</a>
         <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
         <button class="nav-btn logout" (click)="auth.logout()">Sign Out</button>
       } @else {
