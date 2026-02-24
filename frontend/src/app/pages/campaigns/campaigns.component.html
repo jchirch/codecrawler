@@ -1,0 +1,37 @@
+<div class="campaigns-page">
+  <div class="page-header">
+    <h2>Your Campaigns</h2>
+    <a class="btn-primary" routerLink="/campaigns/new">+ New Campaign</a>
+  </div>
+
+  @if (loading()) {
+    <p class="status-msg">Loading campaigns…</p>
+  } @else if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  } @else if (campaigns().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">⚔️</div>
+      <h3>No campaigns yet</h3>
+      <p>Every legend begins somewhere. Begin yours.</p>
+      <a class="btn-primary" routerLink="/campaigns/new">Begin Your First Quest</a>
+    </div>
+  } @else {
+    <div class="campaign-grid">
+      @for (c of campaigns(); track c.id) {
+        <a class="campaign-card" [routerLink]="['/campaigns', c.id]">
+          <div class="card-top">
+            <h3 class="campaign-name">{{ c.name }}</h3>
+            <span class="badge theme">{{ c.theme }}</span>
+          </div>
+          <div class="card-bottom">
+            <span class="badge difficulty" [class]="'diff-' + c.difficulty.toLowerCase()">
+              {{ c.difficulty }}
+            </span>
+            <span class="card-date">{{ c.created_at | date:'mediumDate' }}</span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>
+

@@ -1,27 +1,27 @@
 .home { max-width: 500px; margin: 2rem auto; }
-h2 { margin-bottom: 1rem; color: #1a202c; }
+h2 { margin-bottom: 1rem; color: #e2e8f0; }
 
 .status { color: #718096; }
 
 .health-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: #1a1f2e;
+  border: 1px solid #2d3a5e;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
 }
 
-.row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #edf2f7; }
+.row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #2d3a5e; }
 .row:last-child { border-bottom: none; }
 
-dt { font-weight: 600; color: #4a5568; }
-dd { margin: 0; color: #2d3748; }
-dd.ok { color: #38a169; font-weight: 600; }
+dt { font-weight: 600; color: #a0aec0; }
+dd { margin: 0; color: #e2e8f0; }
+dd.ok { color: #68d391; font-weight: 600; }
 
 .error-banner {
-  background: #fff5f5;
-  border: 1px solid #feb2b2;
-  color: #c53030;
+  background: rgba(252,129,129,.1);
+  border: 1px solid rgba(252,129,129,.4);
+  color: #fc8181;
   border-radius: 6px;
   padding: .8rem 1rem;
 }

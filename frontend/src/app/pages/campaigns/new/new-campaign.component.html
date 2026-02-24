@@ -1,0 +1,55 @@
+<div class="new-campaign-page">
+  <div class="form-card">
+    <div class="card-header">
+      <h2>⚔️ New Campaign</h2>
+      <p class="subtitle">Name your quest. Choose your world.</p>
+    </div>
+
+    @if (error()) {
+      <div class="error-banner">{{ error() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="name">Campaign Name</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="e.g. The Shattered Throne"
+          autocomplete="off"
+        />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="field-error">Name must be at least 3 characters.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="theme">World Theme</label>
+        <select id="theme" formControlName="theme">
+          @for (t of themes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" formControlName="difficulty">
+          @for (d of difficulties; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+
+      <button type="submit" [disabled]="form.invalid || submitting()">
+        {{ submitting() ? 'Creating…' : 'Create Campaign' }}
+      </button>
+    </form>
+
+    <div class="back-link">
+      <a routerLink="/campaigns">← Back to campaigns</a>
+    </div>
+  </div>
+</div>
+

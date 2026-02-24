@@ -23,6 +23,24 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
+  {
+    path: 'campaigns',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/campaigns/campaigns.component').then((m) => m.CampaignsComponent),
+  },
+  {
+    path: 'campaigns/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/campaigns/new/new-campaign.component').then((m) => m.NewCampaignComponent),
+  },
+  {
+    path: 'campaigns/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/campaigns/detail/campaign-detail.component').then((m) => m.CampaignDetailComponent),
+  },
   { path: '**', redirectTo: '' },
 ];
 
