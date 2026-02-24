@@ -7,6 +7,7 @@ export interface Campaign {
   theme: string;
   difficulty: string;
   owner_id: number;
+  invite_code: string;
   created_at: string;
 }
 
@@ -24,6 +25,10 @@ export class CampaignService {
 
   create(data: { name: string; theme: string; difficulty: string }) {
     return this.http.post<{ campaign: Campaign }>('/api/campaigns', data);
+  }
+
+  join(inviteCode: string) {
+    return this.http.post<{ campaign: Campaign }>('/api/campaigns/join', { invite_code: inviteCode });
   }
 }
 

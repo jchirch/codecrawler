@@ -17,6 +17,13 @@
           </span>
         </div>
       </div>
+      <div class="invite-block">
+        <span class="invite-label">Invite:</span>
+        <code class="invite-code">{{ campaign()!.invite_code }}</code>
+        <button class="copy-btn" (click)="copyInviteCode()" [class.copied]="codeCopied()">
+          {{ codeCopied() ? '✓ Copied' : '📋 Copy' }}
+        </button>
+      </div>
     </div>
 
     <!-- Scrollable messages -->

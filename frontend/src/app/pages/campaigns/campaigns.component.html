@@ -4,6 +4,30 @@
     <a class="btn-primary" routerLink="/campaigns/new">+ New Campaign</a>
   </div>
 
+  <!-- Join via invite code -->
+  <div class="join-panel">
+    <h3 class="join-title">🔑 Join a Campaign</h3>
+    <div class="join-form">
+      <input
+        class="join-input"
+        type="text"
+        placeholder="Enter invite code (e.g. A1B2C3D4)"
+        [(ngModel)]="joinCode"
+        (keydown.enter)="joinCampaign()"
+        maxlength="8"
+      />
+      <button class="btn-primary" (click)="joinCampaign()" [disabled]="joining() || !joinCode.trim()">
+        {{ joining() ? 'Joining…' : 'Join' }}
+      </button>
+    </div>
+    @if (joinError()) {
+      <p class="join-error">{{ joinError() }}</p>
+    }
+    @if (joinSuccess()) {
+      <p class="join-success">✓ {{ joinSuccess() }}</p>
+    }
+  </div>
+
   @if (loading()) {
     <p class="status-msg">Loading campaigns…</p>
   } @else if (error()) {
@@ -12,7 +36,7 @@
     <div class="empty-state">
       <div class="empty-icon">⚔️</div>
       <h3>No campaigns yet</h3>
-      <p>Every legend begins somewhere. Begin yours.</p>
+      <p>Every legend begins somewhere. Begin yours — or join one above.</p>
       <a class="btn-primary" routerLink="/campaigns/new">Begin Your First Quest</a>
     </div>
   } @else {
@@ -26,6 +50,9 @@
           <div class="card-bottom">
             <span class="badge difficulty" [class]="'diff-' + c.difficulty.toLowerCase()">
               {{ c.difficulty }}
+            </span>
+            <span class="role-badge" [class.owner]="isOwner(c)" [class.member]="!isOwner(c)">
+              {{ isOwner(c) ? '👑 Owner' : '⚔️ Member' }}
             </span>
             <span class="card-date">{{ c.created_at | date:'mediumDate' }}</span>
           </div>

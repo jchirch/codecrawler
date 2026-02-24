@@ -1,11 +1,12 @@
 import { Router, Response } from 'express';
 import { Pool } from 'pg';
+import { Server } from 'socket.io';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 
-export function createMessagesRouter(db: Pool): Router {
+export function createMessagesRouter(db: Pool, io: Server): Router {
   const router = Router();
 
-  // GET /api/campaigns/:id/messages — list messages for a campaign (owner only)
+  // GET /api/campaigns/:id/messages — list messages (member access)
   router.get('/:id/messages', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
     if (isNaN(id)) {
@@ -13,12 +14,12 @@ export function createMessagesRouter(db: Pool): Router {
       return;
     }
 
-    // Verify ownership
-    const campaign = await db.query(
-      `SELECT id FROM campaigns WHERE id = $1 AND owner_id = $2`,
+    // Verify membership
+    const member = await db.query(
+      `SELECT 1 FROM campaign_members WHERE campaign_id = $1 AND user_id = $2`,
       [id, req.userId],
     );
-    if (campaign.rows.length === 0) {
+    if (member.rows.length === 0) {
       res.status(404).json({ error: 'campaign not found' });
       return;
     }
@@ -35,7 +36,7 @@ export function createMessagesRouter(db: Pool): Router {
     res.json({ messages: result.rows });
   });
 
-  // POST /api/campaigns/:id/messages — post a message to a campaign (owner only)
+  // POST /api/campaigns/:id/messages — post a message (member access, broadcasts via socket)
   router.post('/:id/messages', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
     const id = Number(req.params['id']);
     if (isNaN(id)) {
@@ -49,12 +50,12 @@ export function createMessagesRouter(db: Pool): Router {
       return;
     }
 
-    // Verify ownership
-    const campaign = await db.query(
-      `SELECT id FROM campaigns WHERE id = $1 AND owner_id = $2`,
+    // Verify membership
+    const member = await db.query(
+      `SELECT 1 FROM campaign_members WHERE campaign_id = $1 AND user_id = $2`,
       [id, req.userId],
     );
-    if (campaign.rows.length === 0) {
+    if (member.rows.length === 0) {
       res.status(404).json({ error: 'campaign not found' });
       return;
     }
@@ -70,7 +71,12 @@ export function createMessagesRouter(db: Pool): Router {
       [id, req.userId, content.trim()],
     );
 
-    res.status(201).json({ message: result.rows[0] });
+    const message = result.rows[0];
+
+    // Broadcast to everyone in the campaign room (including sender)
+    io.to(`campaign:${id}`).emit('new-message', message);
+
+    res.status(201).json({ message });
   });
 
   return router;

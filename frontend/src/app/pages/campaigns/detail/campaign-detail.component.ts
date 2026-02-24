@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef, AfterViewC
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CampaignService, Campaign } from '../../../services/campaign.service';
 import { MessageService, Message } from '../../../services/message.service';
 import { AuthService } from '../../../services/auth.service';
+import { SocketService } from '../../../services/socket.service';
 
 @Component({
   selector: 'app-campaign-detail',
@@ -21,10 +23,11 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
   loading = signal(true);
   error = signal<string | null>(null);
   sending = signal(false);
+  codeCopied = signal(false);
   messageContent = '';
 
   private campaignId = 0;
-  private pollInterval: ReturnType<typeof setInterval> | null = null;
+  private socketSub: Subscription | null = null;
   private shouldScrollToBottom = false;
 
   constructor(
@@ -32,6 +35,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
     private campaignService: CampaignService,
     private messageService: MessageService,
     private authService: AuthService,
+    private socketService: SocketService,
   ) {}
 
   ngOnInit(): void {
@@ -40,8 +44,19 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
       next: (res) => {
         this.campaign.set(res.campaign);
         this.loading.set(false);
-        this.loadMessages(true);
-        this.pollInterval = setInterval(() => this.loadMessages(false), 3000);
+        // Load history once, then switch to socket for live updates
+        this.messageService.list(this.campaignId).subscribe({
+          next: (r) => {
+            this.messages.set(r.messages);
+            this.shouldScrollToBottom = true;
+          },
+        });
+        this.socketService.connect();
+        this.socketService.joinCampaign(this.campaignId);
+        this.socketSub = this.socketService.onNewMessage().subscribe((msg) => {
+          this.messages.update((msgs) => [...msgs, msg]);
+          this.shouldScrollToBottom = true;
+        });
       },
       error: () => {
         this.error.set('Campaign not found or you do not have access.');
@@ -58,13 +73,21 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
   }
 
   ngOnDestroy(): void {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-    }
+    this.socketSub?.unsubscribe();
+    this.socketService.leaveCampaign();
   }
 
   isCurrentUser(userId: number): boolean {
     return this.authService.currentUser()?.id === userId;
+  }
+
+  copyInviteCode(): void {
+    const code = this.campaign()?.invite_code;
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
+      this.codeCopied.set(true);
+      setTimeout(() => this.codeCopied.set(false), 2000);
+    });
   }
 
   sendMessage(): void {
@@ -73,11 +96,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
 
     this.sending.set(true);
     this.messageService.send(this.campaignId, content).subscribe({
-      next: (res) => {
-        this.messages.update((msgs) => [...msgs, res.message]);
+      next: () => {
+        // Do NOT add message locally — socket event delivers it to everyone including sender
         this.messageContent = '';
         this.sending.set(false);
-        this.shouldScrollToBottom = true;
       },
       error: () => {
         this.sending.set(false);
@@ -90,20 +112,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
       event.preventDefault();
       this.sendMessage();
     }
-  }
-
-  private loadMessages(forceScroll: boolean): void {
-    const el = this.messageList?.nativeElement;
-    const atBottom = !el || el.scrollHeight - el.scrollTop - el.clientHeight < 50;
-
-    this.messageService.list(this.campaignId).subscribe({
-      next: (res) => {
-        this.messages.set(res.messages);
-        if (forceScroll || atBottom) {
-          this.shouldScrollToBottom = true;
-        }
-      },
-    });
   }
 
   private scrollToBottom(): void {
