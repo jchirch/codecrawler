@@ -30,8 +30,9 @@ CREATE TABLE IF NOT EXISTS campaign_members (
 CREATE TABLE IF NOT EXISTS messages (
   id          SERIAL PRIMARY KEY,
   campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
-  user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id     INTEGER REFERENCES users(id) ON DELETE CASCADE,
   content     TEXT NOT NULL,
+  is_dm       BOOLEAN NOT NULL DEFAULT FALSE,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

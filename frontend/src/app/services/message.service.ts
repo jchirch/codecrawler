@@ -4,10 +4,11 @@ import { HttpClient } from '@angular/common/http';
 export interface Message {
   id: number;
   campaign_id: number;
-  user_id: number;
+  user_id: number | null;
   content: string;
   created_at: string;
   display_name: string;
+  is_dm?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

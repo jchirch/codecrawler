@@ -39,10 +39,17 @@
             </div>
           }
           @for (msg of messages(); track msg.id) {
-            <div class="message-row" [class.own]="isCurrentUser(msg.user_id)" [class.dice-msg]="msg.content.startsWith('🎲')">
+            <div class="message-row"
+              [class.own]="!msg.is_dm && isCurrentUser(msg.user_id)"
+              [class.dice-msg]="!msg.is_dm && msg.content.startsWith('🎲')"
+              [class.dm-msg]="msg.is_dm">
               <div class="message-bubble">
                 <div class="message-meta">
-                  <span class="message-name">{{ msg.display_name }}</span>
+                  @if (msg.is_dm) {
+                    <span class="message-name dm-name">🐉 {{ msg.display_name }}</span>
+                  } @else {
+                    <span class="message-name">{{ msg.display_name }}</span>
+                  }
                   <span class="message-time">{{ msg.created_at | date:'shortTime' }}</span>
                 </div>
                 <div class="message-content">{{ msg.content }}</div>

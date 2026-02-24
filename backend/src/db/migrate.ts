@@ -71,6 +71,16 @@ export async function runMigrations(db: Pool): Promise<void> {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT UNIQUE;
   `);
 
+  // ── Phase 7: AI Dungeon Master messages ─────────────────────────────────────
+  await db.query(`
+    ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_dm BOOLEAN NOT NULL DEFAULT FALSE;
+  `);
+
+  // Allow user_id to be NULL for DM messages (which have no associated user)
+  await db.query(`
+    ALTER TABLE messages ALTER COLUMN user_id DROP NOT NULL;
+  `);
+
   console.log('Migrations applied');
 }
 

@@ -186,6 +186,27 @@
   border-color: rgba(214,158,46,.4);
 }
 
+/* ── Dungeon Master messages ─────────────────────────────── */
+.message-row.dm-msg {
+  justify-content: center;
+}
+.message-row.dm-msg .message-bubble {
+  max-width: 85%;
+  background: rgba(214,158,46,.06);
+  border: 1px solid rgba(214,158,46,.35);
+  border-left: 3px solid #d69e2e;
+  border-radius: 10px;
+}
+.dm-name {
+  color: #d69e2e !important;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.message-row.dm-msg .message-content {
+  color: #f0e6c8;
+  font-style: italic;
+}
+
 .message-time {
   font-size: .65rem;
   color: #4a5568;
