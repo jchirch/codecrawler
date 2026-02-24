@@ -66,6 +66,11 @@ export async function runMigrations(db: Pool): Promise<void> {
     ON CONFLICT DO NOTHING;
   `);
 
+  // ── Phase 6: username for display in chat ───────────────────────────────────
+  await db.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT UNIQUE;
+  `);
+
   console.log('Migrations applied');
 }
 

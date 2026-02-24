@@ -6,6 +6,7 @@
       @if (auth.isAuthenticated()) {
         <a routerLink="/campaigns" routerLinkActive="active">Campaigns</a>
         <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/settings" routerLinkActive="active">⚙️ Settings</a>
         <button class="nav-btn logout" (click)="auth.logout()">Sign Out</button>
       } @else {
         <a routerLink="/login" routerLinkActive="active">Sign In</a>

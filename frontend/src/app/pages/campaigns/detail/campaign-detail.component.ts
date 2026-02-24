@@ -2,11 +2,19 @@ import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef, AfterViewC
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CampaignService, Campaign } from '../../../services/campaign.service';
 import { MessageService, Message } from '../../../services/message.service';
 import { AuthService } from '../../../services/auth.service';
 import { SocketService } from '../../../services/socket.service';
+
+interface DiceResult {
+  rolls: number[];
+  total: number;
+  notation: string;
+  formatted: string;
+}
 
 @Component({
   selector: 'app-campaign-detail',
@@ -26,6 +34,15 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
   codeCopied = signal(false);
   messageContent = '';
 
+  // ── Dice roller state ──────────────────────────────────────────
+  readonly DICE_TYPES = [4, 6, 8, 10, 12, 20];
+  selectedDie = signal(20);
+  diceCount = signal(1);
+  diceModifier = signal(0);
+  rolling = signal(false);
+  diceResult = signal<DiceResult | null>(null);
+  sendingDice = signal(false);
+
   private campaignId = 0;
   private socketSub: Subscription | null = null;
   private shouldScrollToBottom = false;
@@ -36,6 +53,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
     private messageService: MessageService,
     private authService: AuthService,
     private socketService: SocketService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -112,6 +130,44 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  // ── Dice roller methods ────────────────────────────────────────
+  selectDie(sides: number): void {
+    this.selectedDie.set(sides);
+    this.diceResult.set(null);
+  }
+
+  rollDice(): void {
+    if (this.rolling()) return;
+    this.rolling.set(true);
+    this.diceResult.set(null);
+
+    this.http.post<DiceResult>('/api/dice/roll', {
+      count: this.diceCount(),
+      sides: this.selectedDie(),
+      modifier: this.diceModifier(),
+    }).subscribe({
+      next: (result) => {
+        this.diceResult.set(result);
+        this.rolling.set(false);
+      },
+      error: () => this.rolling.set(false),
+    });
+  }
+
+  sendDiceToChat(): void {
+    const result = this.diceResult();
+    if (!result || this.sendingDice()) return;
+    this.sendingDice.set(true);
+
+    this.messageService.send(this.campaignId, result.formatted).subscribe({
+      next: () => {
+        this.sendingDice.set(false);
+        this.diceResult.set(null);
+      },
+      error: () => this.sendingDice.set(false),
+    });
   }
 
   private scrollToBottom(): void {

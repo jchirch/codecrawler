@@ -7,7 +7,7 @@ export interface Message {
   user_id: number;
   content: string;
   created_at: string;
-  email: string;
+  display_name: string;
 }
 
 @Injectable({ providedIn: 'root' })
