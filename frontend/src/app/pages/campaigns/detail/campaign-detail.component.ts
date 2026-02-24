@@ -95,7 +95,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
     this.socketService.leaveCampaign();
   }
 
-  isCurrentUser(userId: number): boolean {
+  isCurrentUser(userId: number | null): boolean {
+    if (userId === null) return false;
     return this.authService.currentUser()?.id === userId;
   }
 
