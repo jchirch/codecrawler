@@ -21,6 +21,16 @@ export async function runMigrations(db: Pool): Promise<void> {
     );
   `);
 
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id          SERIAL PRIMARY KEY,
+      campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      content     TEXT NOT NULL,
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
   console.log('Migrations applied');
 }
 

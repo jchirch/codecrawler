@@ -5,6 +5,7 @@ import { Pool } from 'pg';
 import { createHealthRouter } from './routes/health';
 import { createAuthRouter } from './routes/auth';
 import { createCampaignsRouter } from './routes/campaigns';
+import { createMessagesRouter } from './routes/messages';
 import { runMigrations } from './db/migrate';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/api/health', createHealthRouter(db));
 app.use('/api/auth', createAuthRouter(db));
 app.use('/api/campaigns', createCampaignsRouter(db));
+app.use('/api/campaigns', createMessagesRouter(db));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 runMigrations(db)

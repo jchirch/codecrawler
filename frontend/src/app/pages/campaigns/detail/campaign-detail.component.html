@@ -1,50 +1,58 @@
-<div class="detail-page">
+@if (loading()) {
+  <p class="status-msg">Loading campaign…</p>
+} @else if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+} @else if (campaign()) {
+  <div class="chat-page">
 
-  @if (loading()) {
-    <p class="status-msg">Loading campaign…</p>
-  } @else if (error()) {
-    <div class="error-banner">{{ error() }}</div>
-  } @else if (campaign()) {
-    <div class="detail-card">
-      <div class="detail-header">
-        <div>
-          <h2>{{ campaign()!.name }}</h2>
-          <div class="badges">
-            <span class="badge theme">{{ campaign()!.theme }}</span>
-            <span class="badge difficulty" [class]="'diff-' + campaign()!.difficulty.toLowerCase()">
-              {{ campaign()!.difficulty }}
-            </span>
-          </div>
+    <!-- Compact campaign header -->
+    <div class="chat-header">
+      <a class="back-link" routerLink="/campaigns">← Campaigns</a>
+      <div class="header-info">
+        <span class="campaign-name">{{ campaign()!.name }}</span>
+        <div class="badges">
+          <span class="badge theme">{{ campaign()!.theme }}</span>
+          <span class="badge difficulty" [class]="'diff-' + campaign()!.difficulty.toLowerCase()">
+            {{ campaign()!.difficulty }}
+          </span>
         </div>
-      </div>
-
-      <dl class="detail-list">
-        <div class="row">
-          <dt>Campaign ID</dt>
-          <dd>#{{ campaign()!.id }}</dd>
-        </div>
-        <div class="row">
-          <dt>World Theme</dt>
-          <dd>{{ campaign()!.theme }}</dd>
-        </div>
-        <div class="row">
-          <dt>Difficulty</dt>
-          <dd>{{ campaign()!.difficulty }}</dd>
-        </div>
-        <div class="row">
-          <dt>Created</dt>
-          <dd>{{ campaign()!.created_at | date:'medium' }}</dd>
-        </div>
-      </dl>
-
-      <div class="actions">
-        <button class="btn-load" disabled title="AI dungeon master coming in a future phase">
-          🎲 Load Campaign
-        </button>
-        <a class="btn-back" routerLink="/campaigns">← Back to campaigns</a>
       </div>
     </div>
-  }
 
-</div>
+    <!-- Scrollable messages -->
+    <div class="messages-area" #messageList>
+      @if (messages().length === 0) {
+        <div class="empty-state">
+          <p>🗺️ No messages yet. Start your adventure!</p>
+        </div>
+      }
+      @for (msg of messages(); track msg.id) {
+        <div class="message-row" [class.own]="isCurrentUser(msg.user_id)">
+          <div class="message-bubble">
+            <div class="message-meta">
+              <span class="message-email">{{ msg.email }}</span>
+              <span class="message-time">{{ msg.created_at | date:'shortTime' }}</span>
+            </div>
+            <div class="message-content">{{ msg.content }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <textarea
+        [(ngModel)]="messageContent"
+        (keydown)="onKeydown($event)"
+        placeholder="Type your message… (Enter to send, Shift+Enter for new line)"
+        [disabled]="sending()"
+        rows="1"
+      ></textarea>
+      <button class="send-btn" (click)="sendMessage()" [disabled]="sending() || !messageContent.trim()">
+        {{ sending() ? '…' : '➤' }}
+      </button>
+    </div>
+
+  </div>
+}
 
