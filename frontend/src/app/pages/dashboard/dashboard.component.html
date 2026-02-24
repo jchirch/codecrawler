@@ -1,0 +1,31 @@
+<div class="dashboard">
+  <div class="header">
+    <h2>Dashboard</h2>
+    <button class="logout-btn" (click)="logout()">Sign Out</button>
+  </div>
+
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  } @else if (user()) {
+    <div class="user-card">
+      <h3>Welcome back!</h3>
+      <dl>
+        <div class="row">
+          <dt>ID</dt>
+          <dd>{{ user()!.id }}</dd>
+        </div>
+        <div class="row">
+          <dt>Email</dt>
+          <dd>{{ user()!.email }}</dd>
+        </div>
+        <div class="row">
+          <dt>Member since</dt>
+          <dd>{{ user()!.created_at | date:'mediumDate' }}</dd>
+        </div>
+      </dl>
+    </div>
+  } @else {
+    <p class="loading">Loading your profile…</p>
+  }
+</div>
+

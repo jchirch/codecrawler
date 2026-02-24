@@ -38,6 +38,7 @@ services:
       DB_USER: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       CORS_ORIGIN: http://localhost
+      JWT_SECRET: ${JWT_SECRET:-changeme-dev-secret}
     ports:
       - "3000:3000"
     depends_on:

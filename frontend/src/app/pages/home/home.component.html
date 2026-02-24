@@ -1,0 +1,25 @@
+<div class="home">
+  <h2>API Health Check</h2>
+
+  @if (loading()) {
+    <p class="status">Checking backend…</p>
+  } @else if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  } @else if (health()) {
+    <dl class="health-card">
+      <div class="row">
+        <dt>Status</dt>
+        <dd class="ok">{{ health()!.status }}</dd>
+      </div>
+      <div class="row">
+        <dt>Database</dt>
+        <dd [class.ok]="health()!.db === 'connected'">{{ health()!.db }}</dd>
+      </div>
+      <div class="row">
+        <dt>Timestamp</dt>
+        <dd>{{ health()!.timestamp | date:'medium' }}</dd>
+      </div>
+    </dl>
+  }
+</div>
+

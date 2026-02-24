@@ -1,38 +1,16 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-interface HealthResponse {
-  status: string;
-  db: string;
-  timestamp: string;
-}
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
-  health = signal<HealthResponse | null>(null);
-  error = signal<string | null>(null);
-  loading = signal(true);
-
-  constructor(private http: HttpClient) {}
-
-  ngOnInit(): void {
-    this.http.get<HealthResponse>('/api/health').subscribe({
-      next: (data) => {
-        this.health.set(data);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message ?? 'Failed to reach backend');
-        this.loading.set(false);
-      },
-    });
-  }
+export class AppComponent {
+  constructor(public auth: AuthService) {}
 }
 
