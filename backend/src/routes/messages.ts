@@ -25,7 +25,8 @@ export function createMessagesRouter(db: Pool, io: Server): Router {
     }
 
     const result = await db.query(
-      `SELECT m.id, m.campaign_id, m.user_id, m.content, m.created_at, u.email
+      `SELECT m.id, m.campaign_id, m.user_id, m.content, m.created_at,
+              COALESCE(u.username, u.email) as display_name
        FROM messages m
        JOIN users u ON u.id = m.user_id
        WHERE m.campaign_id = $1
@@ -60,14 +61,15 @@ export function createMessagesRouter(db: Pool, io: Server): Router {
       return;
     }
 
-    // Insert and return with user email in a single CTE query
+    // Insert and return with display_name in a single CTE query
     const result = await db.query(
       `WITH inserted AS (
          INSERT INTO messages (campaign_id, user_id, content)
          VALUES ($1, $2, $3)
          RETURNING id, campaign_id, user_id, content, created_at
        )
-       SELECT i.*, u.email FROM inserted i JOIN users u ON u.id = i.user_id`,
+       SELECT i.*, COALESCE(u.username, u.email) as display_name
+       FROM inserted i JOIN users u ON u.id = i.user_id`,
       [id, req.userId, content.trim()],
     );
 

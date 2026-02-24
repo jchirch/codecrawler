@@ -6,6 +6,7 @@ import { tap } from 'rxjs/operators';
 export interface User {
   id: number;
   email: string;
+  username?: string | null;
   created_at: string;
 }
 
@@ -53,6 +54,12 @@ export class AuthService {
         this.currentUser.set(res.user);
         this.isAuthenticated.set(true);
       }),
+    );
+  }
+
+  updateSettings(username: string) {
+    return this.http.patch<{ user: User }>('/api/auth/me', { username }).pipe(
+      tap((res) => this.currentUser.set(res.user)),
     );
   }
 

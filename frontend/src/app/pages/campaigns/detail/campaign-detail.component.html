@@ -5,7 +5,7 @@
 } @else if (campaign()) {
   <div class="chat-page">
 
-    <!-- Compact campaign header -->
+    <!-- Compact campaign header (full-width) -->
     <div class="chat-header">
       <a class="back-link" routerLink="/campaigns">← Campaigns</a>
       <div class="header-info">
@@ -26,40 +26,101 @@
       </div>
     </div>
 
-    <!-- Scrollable messages -->
-    <div class="messages-area" #messageList>
-      @if (messages().length === 0) {
-        <div class="empty-state">
-          <p>🗺️ No messages yet. Start your adventure!</p>
-        </div>
-      }
-      @for (msg of messages(); track msg.id) {
-        <div class="message-row" [class.own]="isCurrentUser(msg.user_id)">
-          <div class="message-bubble">
-            <div class="message-meta">
-              <span class="message-email">{{ msg.email }}</span>
-              <span class="message-time">{{ msg.created_at | date:'shortTime' }}</span>
+    <!-- Body: chat main + dice sidebar -->
+    <div class="chat-body">
+
+      <!-- Chat main column -->
+      <div class="chat-main">
+        <!-- Scrollable messages -->
+        <div class="messages-area" #messageList>
+          @if (messages().length === 0) {
+            <div class="empty-state">
+              <p>🗺️ No messages yet. Start your adventure!</p>
             </div>
-            <div class="message-content">{{ msg.content }}</div>
-          </div>
+          }
+          @for (msg of messages(); track msg.id) {
+            <div class="message-row" [class.own]="isCurrentUser(msg.user_id)" [class.dice-msg]="msg.content.startsWith('🎲')">
+              <div class="message-bubble">
+                <div class="message-meta">
+                  <span class="message-name">{{ msg.display_name }}</span>
+                  <span class="message-time">{{ msg.created_at | date:'shortTime' }}</span>
+                </div>
+                <div class="message-content">{{ msg.content }}</div>
+              </div>
+            </div>
+          }
         </div>
-      }
-    </div>
 
-    <!-- Input area -->
-    <div class="input-area">
-      <textarea
-        [(ngModel)]="messageContent"
-        (keydown)="onKeydown($event)"
-        placeholder="Type your message… (Enter to send, Shift+Enter for new line)"
-        [disabled]="sending()"
-        rows="1"
-      ></textarea>
-      <button class="send-btn" (click)="sendMessage()" [disabled]="sending() || !messageContent.trim()">
-        {{ sending() ? '…' : '➤' }}
-      </button>
-    </div>
+        <!-- Input area -->
+        <div class="input-area">
+          <textarea
+            [(ngModel)]="messageContent"
+            (keydown)="onKeydown($event)"
+            placeholder="Type your message… (Enter to send, Shift+Enter for new line)"
+            [disabled]="sending()"
+            rows="1"
+          ></textarea>
+          <button class="send-btn" (click)="sendMessage()" [disabled]="sending() || !messageContent.trim()">
+            {{ sending() ? '…' : '➤' }}
+          </button>
+        </div>
+      </div>
 
+      <!-- Dice roller sidebar -->
+      <div class="dice-sidebar">
+        <div class="dice-panel">
+          <h3 class="dice-title">🎲 Dice Roller</h3>
+
+          <!-- Die type selector -->
+          <div class="dice-types">
+            @for (d of DICE_TYPES; track d) {
+              <button
+                class="die-btn"
+                [class.selected]="selectedDie() === d"
+                (click)="selectDie(d)"
+              >d{{ d }}</button>
+            }
+          </div>
+
+          <!-- Count + modifier -->
+          <div class="dice-controls">
+            <div class="control-group">
+              <label class="control-label">Dice</label>
+              <input class="control-input" type="number" [ngModel]="diceCount()" (ngModelChange)="diceCount.set($event)" min="1" max="20" />
+            </div>
+            <div class="control-group">
+              <label class="control-label">Modifier</label>
+              <input class="control-input" type="number" [ngModel]="diceModifier()" (ngModelChange)="diceModifier.set($event)" min="-100" max="100" />
+            </div>
+          </div>
+
+          <!-- Roll button -->
+          <button class="btn-roll" (click)="rollDice()" [disabled]="rolling()">
+            {{ rolling() ? 'Rolling…' : 'Roll ' + diceCount() + 'd' + selectedDie() + (diceModifier() !== 0 ? (diceModifier() > 0 ? '+' : '') + diceModifier() : '') }}
+          </button>
+
+          <!-- Result display -->
+          @if (diceResult()) {
+            <div class="dice-result">
+              <div class="result-notation">{{ diceResult()!.notation }}</div>
+              <div class="result-rolls">
+                @for (r of diceResult()!.rolls; track $index) {
+                  <span class="roll-pip">{{ r }}</span>
+                }
+              </div>
+              @if (diceModifier() !== 0) {
+                <div class="result-modifier">{{ diceModifier() > 0 ? '+' : '' }}{{ diceModifier() }} modifier</div>
+              }
+              <div class="result-total">{{ diceResult()!.total }}</div>
+              <button class="btn-send-dice" (click)="sendDiceToChat()" [disabled]="sendingDice()">
+                {{ sendingDice() ? 'Sending…' : '📨 Send to Chat' }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div><!-- /chat-body -->
   </div>
 }
 

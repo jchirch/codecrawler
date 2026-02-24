@@ -9,6 +9,7 @@ import { createHealthRouter } from './routes/health';
 import { createAuthRouter } from './routes/auth';
 import { createCampaignsRouter } from './routes/campaigns';
 import { createMessagesRouter } from './routes/messages';
+import { createDiceRouter } from './routes/dice';
 import { runMigrations } from './db/migrate';
 
 const app = express();
@@ -74,7 +75,7 @@ io.on('connection', (socket) => {
 app.use(
   cors({
     origin: CORS_ORIGIN,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
@@ -85,6 +86,7 @@ app.use('/api/health', createHealthRouter(db));
 app.use('/api/auth', createAuthRouter(db));
 app.use('/api/campaigns', createCampaignsRouter(db));
 app.use('/api/campaigns', createMessagesRouter(db, io));
+app.use('/api/dice', createDiceRouter());
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 runMigrations(db)

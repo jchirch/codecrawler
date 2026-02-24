@@ -1,0 +1,43 @@
+<div class="settings-page">
+  <div class="settings-card">
+    <h2 class="settings-title">⚙️ Account Settings</h2>
+
+    <div class="field-group">
+      <label class="field-label">Email address</label>
+      <input class="field-input readonly" type="email" [value]="currentEmail()" readonly />
+      <p class="field-hint">Your email cannot be changed.</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Display username</label>
+      <input
+        class="field-input"
+        type="text"
+        [(ngModel)]="username"
+        placeholder="Choose a username (3–20 chars)"
+        maxlength="20"
+        (keydown.enter)="save()"
+      />
+      <p class="field-hint">
+        Shown in campaign chat instead of your email.
+        Letters, numbers, and underscores only.
+      </p>
+    </div>
+
+    @if (error()) {
+      <div class="error-banner">{{ error() }}</div>
+    }
+    @if (saved()) {
+      <div class="success-banner">✓ Username saved!</div>
+    }
+
+    <button
+      class="btn-save"
+      (click)="save()"
+      [disabled]="saving() || !username.trim()"
+    >
+      {{ saving() ? 'Saving…' : 'Save changes' }}
+    </button>
+  </div>
+</div>
+

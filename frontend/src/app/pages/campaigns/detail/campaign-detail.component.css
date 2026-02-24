@@ -15,8 +15,25 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 56px - 4rem);
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* ── Chat body (row: main + sidebar) ─────────────────────── */
+.chat-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  gap: .75rem;
+  min-height: 0;
+}
+
+/* ── Chat main (left column) ─────────────────────────────── */
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Header ──────────────────────────────────────────────── */
@@ -152,12 +169,22 @@
   margin-bottom: .3rem;
 }
 
-.message-email {
+.message-name {
   font-size: .72rem;
   font-weight: 700;
   color: #a78bfa;
 }
-.message-row.own .message-email { color: #c4b5fd; }
+.message-row.own .message-name { color: #c4b5fd; }
+
+/* Dice messages get a subtle gold tint */
+.message-row.dice-msg .message-bubble {
+  background: rgba(214,158,46,.08);
+  border-color: rgba(214,158,46,.3);
+}
+.message-row.dice-msg.own .message-bubble {
+  background: rgba(214,158,46,.12);
+  border-color: rgba(214,158,46,.4);
+}
 
 .message-time {
   font-size: .65rem;
@@ -220,4 +247,175 @@
 }
 .send-btn:hover:not(:disabled) { background: #6d28d9; }
 .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Dice sidebar ────────────────────────────────────────── */
+.dice-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dice-panel {
+  background: #1a1f2e;
+  border: 1px solid #2d3a5e;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dice-title {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: .95rem;
+  font-weight: 700;
+}
+
+/* Die type buttons */
+.dice-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .4rem;
+}
+
+.die-btn {
+  background: #0f1117;
+  border: 1px solid #2d3a5e;
+  border-radius: 7px;
+  color: #a0aec0;
+  font-size: .85rem;
+  font-weight: 700;
+  padding: .5rem 0;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: .04em;
+}
+.die-btn:hover { border-color: #7c3aed; color: #a78bfa; }
+.die-btn.selected {
+  background: rgba(124,58,237,.2);
+  border-color: #7c3aed;
+  color: #c4b5fd;
+}
+
+/* Count + modifier inputs */
+.dice-controls {
+  display: flex;
+  gap: .5rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  flex: 1;
+}
+
+.control-label {
+  font-size: .72rem;
+  color: #718096;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+.control-input {
+  background: #0f1117;
+  border: 1px solid #2d3a5e;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: .9rem;
+  padding: .4rem .55rem;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+.control-input:focus { outline: none; border-color: #7c3aed; }
+
+/* Roll button */
+.btn-roll {
+  background: #d69e2e;
+  color: #0f1117;
+  border: none;
+  border-radius: 8px;
+  padding: .6rem;
+  font-size: .875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+  letter-spacing: .02em;
+}
+.btn-roll:hover:not(:disabled) { background: #b7791f; }
+.btn-roll:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Result display */
+.dice-result {
+  background: #0f1117;
+  border: 1px solid #2d3a5e;
+  border-radius: 8px;
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  align-items: center;
+  text-align: center;
+}
+
+.result-notation {
+  font-size: .75rem;
+  color: #718096;
+  font-family: monospace;
+  letter-spacing: .06em;
+}
+
+.result-rolls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  justify-content: center;
+}
+
+.roll-pip {
+  background: rgba(214,158,46,.15);
+  border: 1px solid rgba(214,158,46,.35);
+  color: #d69e2e;
+  border-radius: 5px;
+  padding: .2rem .45rem;
+  font-size: .8rem;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.result-modifier {
+  font-size: .72rem;
+  color: #718096;
+}
+
+.result-total {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #d69e2e;
+  line-height: 1;
+}
+
+.btn-send-dice {
+  background: rgba(124,58,237,.2);
+  border: 1px solid rgba(124,58,237,.5);
+  border-radius: 7px;
+  color: #a78bfa;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .4rem .75rem;
+  cursor: pointer;
+  transition: all .15s;
+  width: 100%;
+}
+.btn-send-dice:hover:not(:disabled) {
+  background: rgba(124,58,237,.35);
+  border-color: #7c3aed;
+  color: #c4b5fd;
+}
+.btn-send-dice:disabled { opacity: .4; cursor: not-allowed; }
 
