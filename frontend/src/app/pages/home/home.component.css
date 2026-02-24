@@ -1,0 +1,28 @@
+.home { max-width: 500px; margin: 2rem auto; }
+h2 { margin-bottom: 1rem; color: #1a202c; }
+
+.status { color: #718096; }
+
+.health-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #edf2f7; }
+.row:last-child { border-bottom: none; }
+
+dt { font-weight: 600; color: #4a5568; }
+dd { margin: 0; color: #2d3748; }
+dd.ok { color: #38a169; font-weight: 600; }
+
+.error-banner {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  border-radius: 6px;
+  padding: .8rem 1rem;
+}
+

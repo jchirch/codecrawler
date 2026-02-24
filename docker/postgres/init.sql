@@ -1,9 +1,11 @@
 -- Initial database schema
--- Add tables here as the app grows.
+-- This file runs once on fresh volume initialisation.
+-- Ongoing migrations are handled by backend/src/db/migrate.ts on startup.
 
--- Example: track health check pings (optional, kept for reference)
--- CREATE TABLE IF NOT EXISTS health_log (
---   id         SERIAL PRIMARY KEY,
---   checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
--- );
+CREATE TABLE IF NOT EXISTS users (
+  id            SERIAL PRIMARY KEY,
+  email         TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 

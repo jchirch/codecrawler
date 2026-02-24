@@ -1,34 +1,20 @@
-<div class="container">
-  <header>
-    <h1>AI Lab</h1>
-    <p class="subtitle">Full-Stack Scaffold · Angular + Express + PostgreSQL</p>
-  </header>
+<div class="shell">
+  <nav class="navbar">
+    <a class="brand" routerLink="/">AI Lab</a>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <button class="nav-btn logout" (click)="auth.logout()">Sign Out</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Sign In</a>
+        <a routerLink="/register" routerLinkActive="active" class="nav-btn register">Register</a>
+      }
+    </div>
+  </nav>
 
-  <section class="card">
-    <h2>Backend Health Check</h2>
-    <p class="endpoint">GET /api/health</p>
-
-    @if (loading()) {
-      <div class="status loading">
-        <span class="dot"></span> Checking…
-      </div>
-    }
-
-    @if (error()) {
-      <div class="status error">
-        <span class="dot"></span> Error: {{ error() }}
-      </div>
-    }
-
-    @if (health(); as h) {
-      <div class="status ok">
-        <span class="dot"></span> {{ h.status | uppercase }}
-      </div>
-      <table class="detail">
-        <tr><td>Database</td><td>{{ h.db }}</td></tr>
-        <tr><td>Timestamp</td><td>{{ h.timestamp }}</td></tr>
-      </table>
-    }
-  </section>
+  <main class="content">
+    <router-outlet />
+  </main>
 </div>
 
