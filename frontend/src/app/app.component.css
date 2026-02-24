@@ -1,0 +1,87 @@
+.container {
+  width: 100%;
+  max-width: 560px;
+  padding: 2rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.card {
+  background: #1e2130;
+  border: 1px solid #2d3250;
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.endpoint {
+  color: #6366f1;
+  font-family: monospace;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.loading .dot { background: #f59e0b; animation: pulse 1.2s infinite; }
+.ok .dot       { background: #22c55e; }
+.error .dot    { background: #ef4444; }
+.error         { color: #ef4444; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.detail {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.detail td {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #2d3250;
+}
+
+.detail td:first-child {
+  color: #94a3b8;
+  width: 40%;
+}
+
