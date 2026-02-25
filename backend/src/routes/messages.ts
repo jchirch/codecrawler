@@ -2,7 +2,8 @@ import { Router, Response } from 'express';
 import { Pool } from 'pg';
 import { Server } from 'socket.io';
 import { requireAuth, AuthRequest } from '../middleware/auth';
-import { askDungeonMaster, DmContext } from '../services/dm-agent';
+import { runDmPipeline, PipelineContext } from '../services/dm-pipeline';
+import { loadCampaignState, saveCampaignState } from '../services/state-store';
 
 export function createMessagesRouter(db: Pool, io: Server): Router {
   const router = Router();
@@ -127,15 +128,22 @@ async function triggerDmResponse(
     .reverse()
     .slice(0, -1);
 
-  const ctx: DmContext = {
+  // Load persisted world state for this campaign
+  const worldState = await loadCampaignState(db, campaignId);
+
+  const ctx: PipelineContext = {
     campaignName: campaign.name,
     theme: campaign.theme,
     difficulty: campaign.difficulty,
     recentMessages,
     userMessage,
+    worldState,
   };
 
-  const dmText = await askDungeonMaster(ctx);
+  const { narrative: dmText, updatedWorldState } = await runDmPipeline(ctx);
+
+  // Persist the updated world state back to the database
+  await saveCampaignState(db, campaignId, updatedWorldState);
 
   // Save DM message (user_id = NULL, is_dm = TRUE)
   const dmResult = await db.query(
