@@ -36,3 +36,10 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS campaign_state (
+  id           SERIAL PRIMARY KEY,
+  campaign_id  INTEGER NOT NULL UNIQUE REFERENCES campaigns(id) ON DELETE CASCADE,
+  world_state  JSONB NOT NULL DEFAULT '{}',
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+

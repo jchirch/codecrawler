@@ -81,6 +81,16 @@ export async function runMigrations(db: Pool): Promise<void> {
     ALTER TABLE messages ALTER COLUMN user_id DROP NOT NULL;
   `);
 
+  // ── Phase 8: persistent campaign world state ─────────────────────────────────
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS campaign_state (
+      id           SERIAL PRIMARY KEY,
+      campaign_id  INTEGER NOT NULL UNIQUE REFERENCES campaigns(id) ON DELETE CASCADE,
+      world_state  JSONB NOT NULL DEFAULT '{}',
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
   console.log('Migrations applied');
 }
 
