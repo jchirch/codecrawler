@@ -47,6 +47,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/settings/settings.component').then((m) => m.SettingsComponent),
   },
+  {
+    path: 'campaigns/:id/new-character',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/campaigns/new-character/new-character.component').then((m) => m.NewCharacterComponent),
+  },
+  {
+    path: 'campaigns/:campaignId/character/:characterId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/character-sheet/character-sheet.component').then((m) => m.CharacterSheetComponent),
+  },
   { path: '**', redirectTo: '' },
 ];
 

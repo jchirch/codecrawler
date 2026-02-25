@@ -32,5 +32,10 @@ Guidelines:
 - Weave in any dice roll results naturally — do not just restate numbers
 - Reference world state details (NPCs, locations, items) to create continuity
 
-Output ONLY the narrative text — no labels, no metadata, no brackets.`;
+When the story calls for giving the player a physical item (e.g. they find, receive, or loot something), append EXACTLY this format at the very end of your response (after the narrative):
+[ITEM_GRANTED: Item Name | A brief description of the item]
+Example: [ITEM_GRANTED: Longsword | A well-balanced steel longsword, ideal for combat]
+Only use this when the narrative explicitly involves the player receiving a tangible item. Do not use it for abstract rewards like XP, gold amounts, or narrative-only events.
+
+Output the narrative text first, then the optional item grant tag — no other labels or metadata.`;
 

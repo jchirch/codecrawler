@@ -86,7 +86,7 @@ export function createMessagesRouter(db: Pool, io: Server): Router {
     res.status(201).json({ message });
 
     // ── Fire-and-forget: AI Dungeon Master response ────────────────────────
-    triggerDmResponse(id, content.trim(), db, io).catch((err: unknown) => {
+    triggerDmResponse(id, content.trim(), req.userId!, db, io).catch((err: unknown) => {
       console.error('[DM] Agent error:', err);
     });
   });
@@ -98,6 +98,7 @@ export function createMessagesRouter(db: Pool, io: Server): Router {
 async function triggerDmResponse(
   campaignId: number,
   userMessage: string,
+  userId: number,
   db: Pool,
   io: Server,
 ): Promise<void> {
@@ -140,10 +141,23 @@ async function triggerDmResponse(
     worldState,
   };
 
-  const { narrative: dmText, updatedWorldState } = await runDmPipeline(ctx);
+  const { narrative: rawDmText, updatedWorldState } = await runDmPipeline(ctx);
 
   // Persist the updated world state back to the database
   await saveCampaignState(db, campaignId, updatedWorldState);
+
+  // ── Extract item grants from narrative ────────────────────────────────────
+  const itemGrantRegex = /\[ITEM_GRANTED:\s*([^|\]]+)\|\s*([^\]]+)\]/g;
+  const itemGrants: Array<{ name: string; description: string }> = [];
+  let match: RegExpExecArray | null;
+  while ((match = itemGrantRegex.exec(rawDmText)) !== null) {
+    itemGrants.push({
+      name: match[1].trim(),
+      description: match[2].trim(),
+    });
+  }
+  // Strip item grant tags from the text displayed in chat
+  const dmText = rawDmText.replace(/\[ITEM_GRANTED:[^\]]+\]/g, '').trim();
 
   // Save DM message (user_id = NULL, is_dm = TRUE)
   const dmResult = await db.query(
@@ -160,5 +174,41 @@ async function triggerDmResponse(
 
   // Broadcast DM message to everyone in the campaign room
   io.to(`campaign:${campaignId}`).emit('new-message', dmMessage);
+
+  // ── Process item grants ───────────────────────────────────────────────────
+  if (itemGrants.length > 0) {
+    // Find the user's character in this campaign
+    const charRes = await db.query(
+      `SELECT id FROM characters WHERE user_id = $1 AND campaign_id = $2`,
+      [userId, campaignId],
+    );
+    if (charRes.rows.length > 0) {
+      const characterId = (charRes.rows[0] as { id: number }).id;
+      for (const grant of itemGrants) {
+        // Save item to inventory
+        const itemRes = await db.query(
+          `INSERT INTO inventory_items (character_id, name, description, quantity)
+           VALUES ($1, $2, $3, 1)
+           RETURNING id, character_id, name, description, quantity, created_at`,
+          [characterId, grant.name, grant.description],
+        );
+        const item = itemRes.rows[0];
+        // Broadcast item-granted event to the campaign room
+        io.to(`campaign:${campaignId}`).emit('item-granted', { userId, characterId, item });
+
+        // Post a system message in chat so everyone sees the item was received
+        const sysRes = await db.query(
+          `INSERT INTO messages (campaign_id, user_id, content, is_dm)
+           VALUES ($1, NULL, $2, TRUE)
+           RETURNING id, campaign_id, user_id, content, is_dm, created_at`,
+          [campaignId, `✨ You received: **${grant.name}** — ${grant.description}`],
+        );
+        io.to(`campaign:${campaignId}`).emit('new-message', {
+          ...sysRes.rows[0],
+          display_name: 'Dungeon Master',
+        });
+      }
+    }
+  }
 }
 

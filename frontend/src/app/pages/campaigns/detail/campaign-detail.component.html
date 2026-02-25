@@ -17,14 +17,34 @@
           </span>
         </div>
       </div>
-      <div class="invite-block">
-        <span class="invite-label">Invite:</span>
-        <code class="invite-code">{{ campaign()!.invite_code }}</code>
-        <button class="copy-btn" (click)="copyInviteCode()" [class.copied]="codeCopied()">
-          {{ codeCopied() ? '✓ Copied' : '📋 Copy' }}
-        </button>
+      <div class="header-actions">
+        @if (myCharacter()) {
+          <a class="btn-character" [routerLink]="['/campaigns', campaignId, 'character', myCharacter()!.id]">
+            📜 <span class="char-btn-name">{{ myCharacter()!.name }}</span>
+            <span class="char-btn-level">Lv.{{ myCharacter()!.level }}</span>
+          </a>
+        } @else {
+          <a class="btn-character btn-create-char" [routerLink]="['/campaigns', campaignId, 'new-character']">
+            ⚔️ Create Character
+          </a>
+        }
+        <div class="invite-block">
+          <span class="invite-label">Invite:</span>
+          <code class="invite-code">{{ campaign()!.invite_code }}</code>
+          <button class="copy-btn" (click)="copyInviteCode()" [class.copied]="codeCopied()">
+            {{ codeCopied() ? '✓ Copied' : '📋 Copy' }}
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Toast notifications -->
+    @if (levelUpToast()) {
+      <div class="toast toast-levelup">{{ levelUpToast() }}</div>
+    }
+    @if (itemToast()) {
+      <div class="toast toast-item">{{ itemToast() }}</div>
+    }
 
     <!-- Body: chat main + dice sidebar -->
     <div class="chat-body">

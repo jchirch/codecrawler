@@ -1,0 +1,159 @@
+<div class="page">
+  <div class="page-header">
+    <a class="back-link" [routerLink]="['/campaigns', campaignId]">← Back to Campaign</a>
+    <h1 class="page-title">⚔️ Create Your Character</h1>
+  </div>
+
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+
+  <div class="form-card">
+    <!-- Character Name -->
+    <div class="form-section">
+      <h2 class="section-title">Identity</h2>
+      <div class="field">
+        <label class="field-label">Character Name *</label>
+        <input class="field-input" type="text" [(ngModel)]="form.name" placeholder="Enter character name" />
+      </div>
+    </div>
+
+    <!-- Race & Class -->
+    <div class="form-section">
+      <h2 class="section-title">Race & Class</h2>
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">Race *</label>
+          @if (loadingRaces()) {
+            <div class="loading-text">Loading races…</div>
+          } @else {
+            <select class="field-select" [(ngModel)]="form.race">
+              <option value="">-- Select Race --</option>
+              @for (race of races(); track race.index) {
+                <option [value]="race.index">{{ race.name }}</option>
+              }
+            </select>
+          }
+        </div>
+        <div class="field">
+          <label class="field-label">Class *</label>
+          @if (loadingClasses()) {
+            <div class="loading-text">Loading classes…</div>
+          } @else {
+            <select class="field-select" [(ngModel)]="form.class" (ngModelChange)="onClassChange()">
+              <option value="">-- Select Class --</option>
+              @for (cls of classes(); track cls.index) {
+                <option [value]="cls.index">{{ cls.name }}</option>
+              }
+            </select>
+          }
+        </div>
+      </div>
+
+      @if (selectedClassDetail()) {
+        <div class="class-info">
+          <span class="class-badge">Hit Die: d{{ selectedClassDetail()!.hit_die }}</span>
+          @if (isSpellcaster()) {
+            <span class="class-badge spellcaster">✨ Spellcasting Class</span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Ability Scores -->
+    <div class="form-section">
+      <h2 class="section-title">Ability Scores</h2>
+      <div class="ability-grid">
+        @for (stat of [
+          {key: 'strength', label: 'STR'},
+          {key: 'dexterity', label: 'DEX'},
+          {key: 'constitution', label: 'CON'},
+          {key: 'intelligence', label: 'INT'},
+          {key: 'wisdom', label: 'WIS'},
+          {key: 'charisma', label: 'CHA'}
+        ]; track stat.key) {
+          <div class="ability-box">
+            <label class="ability-label">{{ stat.label }}</label>
+            <input
+              class="ability-input"
+              type="number"
+              min="1" max="20"
+              [ngModel]="getFormStat(stat.key)"
+              (ngModelChange)="setFormStat(stat.key, $event); stat.key === 'constitution' ? onStatChange() : null"
+            />
+            <div class="ability-mod">{{ abilityModifier(getFormStat(stat.key)) }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Combat Stats -->
+    <div class="form-section">
+      <h2 class="section-title">Combat</h2>
+      <div class="two-col">
+        <div class="field">
+          <label class="field-label">Max HP</label>
+          <input class="field-input" type="number" min="1" [(ngModel)]="form.max_hp" />
+        </div>
+        <div class="field">
+          <label class="field-label">Armor Class</label>
+          <input class="field-input" type="number" min="1" [(ngModel)]="form.armor_class" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Spell Selection (spellcasters only) -->
+    @if (isSpellcaster()) {
+      <div class="form-section">
+        <h2 class="section-title">Starting Spells</h2>
+        <p class="section-hint">Select your cantrips and 1st-level spells.</p>
+        @if (loadingSpells()) {
+          <div class="loading-text">Loading spells…</div>
+        } @else if (spells().length === 0) {
+          <div class="loading-text">No spells found for this class.</div>
+        } @else {
+          <div class="spell-groups">
+            <div class="spell-level-group">
+              <div class="spell-level-title">Cantrips (Level 0)</div>
+              <div class="spell-list">
+                @for (spell of spells(); track spell.index) {
+                  @if (spell.level === 0) {
+                    <label class="spell-checkbox">
+                      <input type="checkbox"
+                        [checked]="isSpellSelected(spell.index)"
+                        (change)="toggleSpell(spell.index)" />
+                      <span>{{ spell.name }}</span>
+                    </label>
+                  }
+                }
+              </div>
+            </div>
+            <div class="spell-level-group">
+              <div class="spell-level-title">1st Level Spells</div>
+              <div class="spell-list">
+                @for (spell of spells(); track spell.index) {
+                  @if (spell.level === 1) {
+                    <label class="spell-checkbox">
+                      <input type="checkbox"
+                        [checked]="isSpellSelected(spell.index)"
+                        (change)="toggleSpell(spell.index)" />
+                      <span>{{ spell.name }}</span>
+                    </label>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Submit -->
+    <div class="form-actions">
+      <a class="btn-cancel" [routerLink]="['/campaigns', campaignId]">Cancel</a>
+      <button class="btn-submit" [disabled]="!canSubmit" (click)="submit()">
+        {{ submitting() ? 'Creating…' : 'Create Character' }}
+      </button>
+    </div>
+  </div>
+</div>
