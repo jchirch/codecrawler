@@ -1,0 +1,207 @@
+@if (loading()) {
+  <div class="status-msg">Loading character…</div>
+} @else if (error()) {
+  <div class="error-banner">{{ error() }}</div>
+} @else if (character()) {
+  <div class="sheet-page">
+
+    <!-- Header -->
+    <div class="sheet-header">
+      <a class="back-link" [routerLink]="['/campaigns', campaignId]">← Back to Campaign</a>
+      <div class="header-info">
+        <h1 class="char-name">{{ character()!.name }}</h1>
+        <div class="char-meta">
+          <span class="meta-badge">{{ character()!.race | titlecase }}</span>
+          <span class="meta-badge">{{ character()!.class | titlecase }}</span>
+          <span class="meta-badge level">Level {{ character()!.level }}</span>
+        </div>
+      </div>
+      @if (saveSuccess()) {
+        <div class="save-success">✓ Saved</div>
+      }
+      @if (!editingStats()) {
+        <button class="btn-edit" (click)="startEditStats()">✏️ Edit Stats</button>
+      }
+    </div>
+
+    <!-- XP Bar -->
+    <div class="xp-section">
+      <div class="xp-header">
+        <span class="xp-label">Experience Points</span>
+        <span class="xp-value">{{ character()!.experience_points | number }} XP</span>
+        @if (xpForNextLevel() !== null) {
+          <span class="xp-next">/ {{ xpForNextLevel()! | number }} to level {{ character()!.level + 1 }}</span>
+        } @else {
+          <span class="xp-next">— Max Level!</span>
+        }
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" [style.width.%]="xpProgress()"></div>
+      </div>
+
+      <!-- XP Award -->
+      <div class="xp-award">
+        <input class="xp-input" type="number" min="1" [ngModel]="xpAmount()" (ngModelChange)="xpAmount.set($event)" placeholder="XP to add" />
+        <button class="btn-xp" (click)="awardXp()" [disabled]="xpAmount() <= 0 || awardingXp()">
+          {{ awardingXp() ? 'Adding…' : '+ Add XP' }}
+        </button>
+      </div>
+      @if (xpMessage()) {
+        <div class="xp-message">{{ xpMessage() }}</div>
+      }
+    </div>
+
+    <!-- Main Grid -->
+    <div class="sheet-grid">
+
+      <!-- Ability Scores -->
+      <div class="sheet-card ability-card">
+        <h2 class="card-title">Ability Scores</h2>
+        @if (editingStats()) {
+          <div class="ability-edit-grid">
+            @for (stat of [
+              {key: 'strength', label: 'STR'},
+              {key: 'dexterity', label: 'DEX'},
+              {key: 'constitution', label: 'CON'},
+              {key: 'intelligence', label: 'INT'},
+              {key: 'wisdom', label: 'WIS'},
+              {key: 'charisma', label: 'CHA'}
+            ]; track stat.key) {
+              <div class="ability-edit-box">
+                <label class="ability-label">{{ stat.label }}</label>
+                <input class="ability-edit-input" type="number" min="1" max="30"
+                  [ngModel]="getEditStat(stat.key)"
+                  (ngModelChange)="setEditStat(stat.key, $event)" />
+              </div>
+            }
+          </div>
+          <div class="edit-actions">
+            <button class="btn-cancel-edit" (click)="cancelEdit()">Cancel</button>
+            <button class="btn-save" (click)="saveStats()" [disabled]="saving()">
+              {{ saving() ? 'Saving…' : 'Save Changes' }}
+            </button>
+          </div>
+        } @else {
+          <div class="ability-grid">
+            @for (stat of [
+              {key: 'strength', label: 'STR'},
+              {key: 'dexterity', label: 'DEX'},
+              {key: 'constitution', label: 'CON'},
+              {key: 'intelligence', label: 'INT'},
+              {key: 'wisdom', label: 'WIS'},
+              {key: 'charisma', label: 'CHA'}
+            ]; track stat.key) {
+              <div class="ability-box">
+                <div class="ability-mod">{{ abilityModifier(getCharStat(stat.key)) }}</div>
+                <div class="ability-score">{{ getCharStat(stat.key) }}</div>
+                <div class="ability-name">{{ stat.label }}</div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Combat Stats -->
+      <div class="sheet-card combat-card">
+        <h2 class="card-title">Combat</h2>
+        <div class="combat-stats">
+          <div class="combat-stat">
+            <div class="stat-value hp-value">{{ character()!.current_hp }}/{{ character()!.max_hp }}</div>
+            <div class="stat-label">Hit Points</div>
+            <div class="hp-bar">
+              <div class="hp-fill" [style.width.%]="hpPercent()" [class.hp-low]="hpPercent() < 30"></div>
+            </div>
+          </div>
+          <div class="combat-stat">
+            <div class="stat-value">{{ character()!.armor_class }}</div>
+            <div class="stat-label">Armor Class</div>
+          </div>
+          <div class="combat-stat">
+            <div class="stat-value">{{ proficiencyBonus() }}</div>
+            <div class="stat-label">Proficiency Bonus</div>
+          </div>
+        </div>
+        @if (editingStats()) {
+          <div class="hp-edit">
+            <div class="field">
+              <label class="field-label">Current HP</label>
+              <input class="edit-input" type="number" [(ngModel)]="editForm.current_hp" />
+            </div>
+            <div class="field">
+              <label class="field-label">Max HP</label>
+              <input class="edit-input" type="number" [(ngModel)]="editForm.max_hp" />
+            </div>
+            <div class="field">
+              <label class="field-label">Armor Class</label>
+              <input class="edit-input" type="number" [(ngModel)]="editForm.armor_class" />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Inventory -->
+      <div class="sheet-card inventory-card">
+        <div class="card-header-row">
+          <h2 class="card-title">🎒 Inventory</h2>
+          <button class="btn-add-item" (click)="showAddItem.set(!showAddItem())">
+            {{ showAddItem() ? '✕' : '+ Add Item' }}
+          </button>
+        </div>
+        @if (showAddItem()) {
+          <div class="add-item-form">
+            <input class="item-input" type="text" [(ngModel)]="newItem.name" placeholder="Item name *" />
+            <input class="item-input" type="text" [(ngModel)]="newItem.description" placeholder="Description" />
+            <div class="item-qty-row">
+              <input class="item-qty-input" type="number" min="1" [(ngModel)]="newItem.quantity" />
+              <button class="btn-add" (click)="addItem()" [disabled]="!newItem.name.trim() || addingItem()">
+                {{ addingItem() ? '…' : 'Add' }}
+              </button>
+            </div>
+          </div>
+        }
+        @if (character()!.inventory.length === 0) {
+          <div class="empty-inventory">No items in inventory.</div>
+        } @else {
+          <div class="inventory-list">
+            @for (item of character()!.inventory; track item.id) {
+              <div class="inventory-item">
+                <div class="item-info">
+                  <span class="item-name">{{ item.name }}</span>
+                  @if (item.description) {
+                    <span class="item-desc">{{ item.description }}</span>
+                  }
+                </div>
+                <div class="item-controls">
+                  <input class="item-qty-small" type="number" min="1"
+                    [value]="item.quantity"
+                    (change)="updateItemQuantity(item, +$any($event.target).value)" />
+                  <button class="btn-remove-item" (click)="removeItem(item.id)" title="Remove">✕</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Spells (if any) -->
+      @if (character()!.spells && character()!.spells.length > 0) {
+        <div class="sheet-card spells-card">
+          <h2 class="card-title">✨ Spells</h2>
+          <div class="spells-list">
+            @for (group of spellsByLevel; track group.level) {
+              <div class="spell-group">
+                <div class="spell-level-header">{{ levelLabel(group.level) }}</div>
+                <div class="spell-chips">
+                  @for (spell of group.spells; track spell.index) {
+                    <span class="spell-chip">{{ spell.name }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div><!-- /sheet-grid -->
+  </div>
+}

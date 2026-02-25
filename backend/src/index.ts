@@ -10,6 +10,8 @@ import { createAuthRouter } from './routes/auth';
 import { createCampaignsRouter } from './routes/campaigns';
 import { createMessagesRouter } from './routes/messages';
 import { createDiceRouter } from './routes/dice';
+import { createDnd5eRouter } from './routes/dnd5e';
+import { createCharactersRouter } from './routes/characters';
 import { runMigrations } from './db/migrate';
 
 const app = express();
@@ -87,6 +89,8 @@ app.use('/api/auth', createAuthRouter(db));
 app.use('/api/campaigns', createCampaignsRouter(db));
 app.use('/api/campaigns', createMessagesRouter(db, io));
 app.use('/api/dice', createDiceRouter());
+app.use('/api/dnd5e', createDnd5eRouter());
+app.use('/api', createCharactersRouter(db, io));
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 runMigrations(db)

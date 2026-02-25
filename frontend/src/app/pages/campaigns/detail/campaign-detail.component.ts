@@ -8,6 +8,7 @@ import { CampaignService, Campaign } from '../../../services/campaign.service';
 import { MessageService, Message } from '../../../services/message.service';
 import { AuthService } from '../../../services/auth.service';
 import { SocketService } from '../../../services/socket.service';
+import { CharacterService, Character } from '../../../services/character.service';
 
 interface DiceResult {
   rolls: number[];
@@ -34,6 +35,11 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
   codeCopied = signal(false);
   messageContent = '';
 
+  // ── Character state ────────────────────────────────────────
+  myCharacter = signal<Character | null>(null);
+  levelUpToast = signal<string | null>(null);
+  itemToast = signal<string | null>(null);
+
   // ── Dice roller state ──────────────────────────────────────────
   readonly DICE_TYPES = [4, 6, 8, 10, 12, 20];
   selectedDie = signal(20);
@@ -43,8 +49,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
   diceResult = signal<DiceResult | null>(null);
   sendingDice = signal(false);
 
-  private campaignId = 0;
+  campaignId = 0;
   private socketSub: Subscription | null = null;
+  private levelUpSub: Subscription | null = null;
+  private itemGrantedSub: Subscription | null = null;
   private shouldScrollToBottom = false;
 
   constructor(
@@ -53,6 +61,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
     private messageService: MessageService,
     private authService: AuthService,
     private socketService: SocketService,
+    private characterService: CharacterService,
     private http: HttpClient,
   ) {}
 
@@ -75,6 +84,29 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
           this.messages.update((msgs) => [...msgs, msg]);
           this.shouldScrollToBottom = true;
         });
+        // Listen for level-up events
+        this.levelUpSub = this.socketService.onLevelUp().subscribe((data) => {
+          const currentUser = this.authService.currentUser();
+          const char = this.myCharacter();
+          if (char && char.id === data.characterId) {
+            this.myCharacter.set({ ...char, level: data.newLevel });
+            this.levelUpToast.set(`🎉 Level Up! You are now level ${data.newLevel}!`);
+            setTimeout(() => this.levelUpToast.set(null), 5000);
+          }
+        });
+        // Listen for item-granted events
+        this.itemGrantedSub = this.socketService.onItemGranted().subscribe((data) => {
+          const currentUser = this.authService.currentUser();
+          if (currentUser && data.userId === currentUser.id) {
+            this.itemToast.set(`✨ You received: ${data.item.name}`);
+            setTimeout(() => this.itemToast.set(null), 5000);
+          }
+        });
+        // Load the user's character for this campaign
+        this.characterService.getMyCharacter(this.campaignId).subscribe({
+          next: (res) => this.myCharacter.set(res.character),
+          error: () => { /* no character yet — that's fine */ },
+        });
       },
       error: () => {
         this.error.set('Campaign not found or you do not have access.');
@@ -92,6 +124,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy, AfterViewChec
 
   ngOnDestroy(): void {
     this.socketSub?.unsubscribe();
+    this.levelUpSub?.unsubscribe();
+    this.itemGrantedSub?.unsubscribe();
     this.socketService.leaveCampaign();
   }
 

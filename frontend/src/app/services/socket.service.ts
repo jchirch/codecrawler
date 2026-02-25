@@ -48,6 +48,30 @@ export class SocketService {
     });
   }
 
+  onLevelUp(): Observable<{ characterId: number; newLevel: number }> {
+    return new Observable((observer) => {
+      const handler = (data: { characterId: number; newLevel: number }) => {
+        this.zone.run(() => observer.next(data));
+      };
+      this.socket?.on('level-up', handler);
+      return () => {
+        this.socket?.off('level-up', handler);
+      };
+    });
+  }
+
+  onItemGranted(): Observable<{ userId: number; characterId: number; item: { name: string; description: string } }> {
+    return new Observable((observer) => {
+      const handler = (data: { userId: number; characterId: number; item: { name: string; description: string } }) => {
+        this.zone.run(() => observer.next(data));
+      };
+      this.socket?.on('item-granted', handler);
+      return () => {
+        this.socket?.off('item-granted', handler);
+      };
+    });
+  }
+
   disconnect(): void {
     this.socket?.disconnect();
     this.socket = null;
