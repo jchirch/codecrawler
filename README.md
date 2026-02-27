@@ -22,7 +22,9 @@ A sophisticated multi-agent orchestration system designed to demonstrate advance
 - **AI Integration**: Google Gemini API
 - **Containerization**: Docker & Docker Compose
 
-### Project Structure
+### Pix
+<img width="1005" height="659" alt="Screenshot 2026-02-27 at 2 52 46 PM" src="https://github.com/user-attachments/assets/46acfe3d-a4b0-4c30-ae55-0e09c34eb872" />
+<img width="813" height="603" alt="Screenshot 2026-02-27 at 2 53 14 PM" src="https://github.com/user-attachments/assets/8a7448b6-6496-49d5-9f47-766308fd9f84" />
 
 
 ## Quick Start
